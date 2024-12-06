@@ -1,6 +1,7 @@
 import re
 import tkinter as tk
 from tkinter import ttk
+from operand import Operand
 
 class CalculatorApp(tk.Tk):
     def __init__(self) -> None:
@@ -9,6 +10,7 @@ class CalculatorApp(tk.Tk):
         self.BUFFER_MAX = 14
         self.result_text = tk.StringVar(value="0")
         self.result_text.trace_add("write", self._result_updated)
+        self.left_val = Operand(0)
 
         # Set window attributes
         self.geometry("300x400")
@@ -45,68 +47,84 @@ class CalculatorApp(tk.Tk):
 
         # Buttons
         ce_button = ttk.Button(self, text="CE", padding=(0, 10, 0, 10), 
-                               command=self.clear_entry)
+                               command=self.clear_entry, takefocus=False)
         ce_button.grid(column=0, row=1, sticky="nsew")
         c_button = ttk.Button(self, text="C", padding=(0, 10, 0, 10),
-                              command=self.clear)
+                              command=self.clear, takefocus=False)
         c_button.grid(column=1, row=1, sticky="nsew")
         bs_button = ttk.Button(self, text="<-", padding=(0, 10, 0, 10),
-                               command=self.backspace, name="backspace")
+                               command=self.backspace, name="backspace",
+                               takefocus=False)
         bs_button.grid(column=2, row=1, sticky="nsew")
         div_button = ttk.Button(self, text="/", padding=(0, 10, 0, 10),
-                                command=self.divide, name="divide")
+                                command=self.divide, name="divide",
+                                takefocus=False)
         div_button.grid(column=3, row=1, sticky="nsew")
         seven_button = ttk.Button(self, text="7", padding=(0, 10, 0, 10),
-                                  command=lambda: self.num_press(7), name="7")
+                                  command=lambda: self.num_press(7), name="7",
+                                  takefocus=False)
         seven_button.grid(column=0, row=2, sticky="nsew")
         eight_button = ttk.Button(self, text="8", padding=(0, 10, 0, 10),
-                                  command=lambda: self.num_press(8), name="8")
+                                  command=lambda: self.num_press(8), name="8",
+                                  takefocus=False)
         eight_button.grid(column=1, row=2, sticky="nsew")
         nine_button = ttk.Button(self, text="9", padding=(0, 10, 0, 10),
-                                 command=lambda: self.num_press(9), name="9")
+                                 command=lambda: self.num_press(9), name="9",
+                                 takefocus=False)
         nine_button.grid(column=2, row=2, sticky="nsew")
         mul_button = ttk.Button(self, text="X", padding=(0, 10, 0, 10),
-                                command=self.multiply, name="multiply")
+                                command=self.multiply, name="multiply",
+                                takefocus=False)
         mul_button.grid(column=3, row=2, sticky="nsew")
         four_button = ttk.Button(self, text="4", padding=(0, 10, 0, 10),
-                                 command=lambda: self.num_press(4), name="4")
+                                 command=lambda: self.num_press(4), name="4",
+                                 takefocus=False)
         four_button.grid(column=0, row=3, sticky="nsew")
         five_button = ttk.Button(self, text="5", padding=(0, 10, 0, 10),
-                                 command=lambda: self.num_press(5), name="5")
+                                 command=lambda: self.num_press(5), name="5",
+                                 takefocus=False)
         five_button.grid(column=1, row=3, sticky="nsew")
         six_button = ttk.Button(self, text="6", padding=(0, 10, 0, 10),
-                                command=lambda: self.num_press(6), name="6")
+                                command=lambda: self.num_press(6), name="6",
+                                takefocus=False)
         six_button.grid(column=2, row=3, sticky="nsew")
         sub_button = ttk.Button(self, text="-", padding=(0, 10, 0, 10),
-                                command=self.subtract, name="subtract")
+                                command=self.subtract, name="subtract",
+                                takefocus=False)
         sub_button.grid(column=3, row=3, sticky="nsew")
         one_button = ttk.Button(self, text="1", padding=(0, 10, 0, 10),
-                                command=lambda: self.num_press(1), name="1")
+                                command=lambda: self.num_press(1), name="1",
+                                takefocus=False)
         one_button.grid(column=0, row=4, sticky="nsew")
         two_button = ttk.Button(self, text="2", padding=(0, 10, 0, 10),
-                                command=lambda: self.num_press(2), name="2")
+                                command=lambda: self.num_press(2), name="2",
+                                takefocus=False)
         two_button.grid(column=1, row=4, sticky="nsew")
         three_button = ttk.Button(self, text="3", padding=(0, 10, 0, 10),
-                                  command=lambda: self.num_press(3), name="3")
+                                  command=lambda: self.num_press(3), name="3",
+                                  takefocus=False)
         three_button.grid(column=2, row=4, sticky="nsew")
         add_button = ttk.Button(self, text="+", padding=(0, 10, 0, 10),
-                                command=self.add, name="add")
+                                command=self.add, name="add", takefocus=False)
         add_button.grid(column=3, row=4, sticky="nsew")
         sign_button = ttk.Button(self, text="+/-", padding=(0, 10, 0, 10),
-                                 command=self.sign)
+                                 command=self.sign, takefocus=False)
         sign_button.grid(column=0, row=5, sticky="nsew")
         zero_button = ttk.Button(self, text="0", padding=(0, 10, 0, 10),
-                                 command=lambda: self.num_press(0), name="0")
+                                 command=lambda: self.num_press(0), name="0",
+                                 takefocus=False)
         zero_button.grid(column=1, row=5, sticky="nsew")
         point_button = ttk.Button(self, text=".", padding=(0, 10, 0, 10),
-                                  command=self.dec_point, name="dec_point")
+                                  command=self.dec_point, name="dec_point",
+                                  takefocus=False)
         point_button.grid(column=2, row=5, sticky="nsew")
         equal_button = ttk.Button(self, text="=", padding=(0, 10, 0, 10),
-                                  command=self.equals, name="equals")
+                                  command=self.equals, name="equals",
+                                  takefocus=False)
         equal_button.grid(column=3, row=5, sticky="nsew")
 
 
-    def _simulate_button_press(self, button: ttk.Button):
+    def _simulate_button_press(self, button: ttk.Button) -> None:
         button.state(["pressed"])
         button.after(100, lambda: button.state(["!pressed"]))
 
@@ -144,7 +162,7 @@ class CalculatorApp(tk.Tk):
 
     
     def clear(self) -> None:
-        # todo figure out how I'm clearing the operands/operation
+        self.left_val.update(0)
         self.clear_entry()
 
 
@@ -155,28 +173,39 @@ class CalculatorApp(tk.Tk):
 
 
     def divide(self) -> None:
-        # todo
-        pass
+        self.left_val /= Operand(self.result_text.get())
+        self.clear_entry()
 
 
     def multiply(self) -> None:
-        # todo
-        pass
+        self.left_val *= Operand(self.result_text.get())
+        self.clear_entry()
 
 
     def subtract(self) -> None:
-        # todo
-        pass
+        self.left_val -= Operand(self.result_text.get())
+        self.clear_entry()
 
 
     def add(self) -> None:
-        # todo
-        pass
+        self.left_val += Operand(self.result_text.get())
+        self.clear_entry()
 
 
     def equals(self) -> None:
-        # todo
-        pass
+        try:
+            match (self.left_val.last_op):
+                case "+":
+                    self.add()
+                case "-":
+                    self.subtract()
+                case "*":
+                    self.multiply()
+                case "/":
+                    self.divide()
+            self.result_text.set(self.left_val)
+        except ZeroDivisionError:
+            self.result_text.set("Divide by zero")
 
 
     def dec_point(self) -> None:

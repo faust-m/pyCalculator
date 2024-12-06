@@ -36,6 +36,21 @@ class TestOperand(unittest.TestCase):
         self.assertRaises(ZeroDivisionError, op1.__truediv__, op2)
 
 
+    def test_create_operand_str(self):
+        op = Operand("-21.243")
+        self.assertEqual(op.value, -21.243)
+
+
+    def test_create_operand_point(self):
+        op = Operand("2151.")
+        self.assertEqual(op.value, 2151)
+
+
+    def test_update(self):
+        op = Operand(215.2)
+        op.update(-1.0)
+        self.assertEqual(op.value, -1)
+
 
 if __name__ == "__main__":
     unittest.main()
