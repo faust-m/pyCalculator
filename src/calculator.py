@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import font
 from tkinter import ttk
 
 class CalculatorApp(tk.Tk):
@@ -35,7 +34,7 @@ class CalculatorApp(tk.Tk):
         result_label.grid(column=0, columnspan=4, row=0, sticky="nsew")
 
         # Buttons
-        ce_button = ttk.Button(self, text="CE", padding=(0, 10, 0, 10), 
+        ce_button = ttk.Button(self, text="CE", padding=(0, 0, 0, 0), 
                                command=self.clear_entry)
         ce_button.grid(column=0, row=1, sticky="nsew")
         c_button = ttk.Button(self, text="C", padding=(0, 10, 0, 10),
