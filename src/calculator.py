@@ -149,12 +149,15 @@ class CalculatorApp(tk.Tk):
             case "+":
                 self._simulate_button_press(self.children["add"])
                 self.add()
-            case "=":
-                self._simulate_button_press(self.children["equals"])
-                self.equals()
             case "\x08":
                 self._simulate_button_press(self.children["backspace"])
                 self.backspace()
+            case "=":
+                self._simulate_button_press(self.children["equals"])
+                self.equals()
+            case _ if e.keysym == "Return":
+                self._simulate_button_press(self.children["equals"])
+                self.equals()
 
 
     def clear_entry(self) -> None:
@@ -203,6 +206,7 @@ class CalculatorApp(tk.Tk):
                     self.multiply()
                 case "/":
                     self.divide()
+            self.left_val.last_op = None
             self.result_text.set(self.left_val)
         except ZeroDivisionError:
             self.result_text.set("Divide by zero")
