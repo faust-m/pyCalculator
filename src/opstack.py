@@ -21,22 +21,39 @@ class Opstack(Stack):
     def __init__(self) -> None:
         super().__init__()
 
+    def push(self, item: float | str) -> None:
+        if type(item) == str and type(self.peek()) == str:
+            self.pop()
+            self.pop()
+        super().push(item)
+
     def solve(self) -> float:
         r_val = self.pop()
         op = self.pop()
-        result = self.pop()
-        if not r_val or not op or not result:
-            raise ValueError("Stack is empty!")
+        l_val = self.pop()
+        if l_val == None or op == None:
+            if r_val == None:
+                raise ValueError("Stack is empty!")
+            result = r_val
         match op:
             case "+":
-                result += r_val
+                result = l_val + r_val
             case "-":
-                result -= r_val
+                result = l_val - r_val
             case "*":
-                result *= r_val
+                result = l_val * r_val
             case "/":
                 if math.isclose(0, r_val):
-                    raise ZeroDivisionError
-                result /= r_val
+                    raise ZeroDivisionError()
+                result = 1.0 * l_val / r_val
         self.push(result)
+        if math.isclose(int(result), result):
+            return int(result)
         return result
+    
+    def reset(self) -> None:
+        self._items.clear()
+        self.push(0)
+
+    def peek(self) -> float | str:
+        return self._items[-1]

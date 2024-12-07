@@ -1,22 +1,26 @@
+import math
+import platform
 import re
 import tkinter as tk
 from tkinter import ttk
-from operand import Operand
+from opstack import Opstack
 
 class CalculatorApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
 
         self.BUFFER_MAX = 14
-        self.result_text = tk.StringVar(value="0")
+        self.result_text = tk.StringVar()
         self.result_text.trace_add("write", self._result_updated)
-        self.left_val = Operand(0)
+        self.stack = Opstack()
+        self.errored = False
+        self.last_was_op = False
 
         # Set window attributes
         self.geometry("300x400")
+        self.resizable(False, False)
         self.title("Calculator")
         self.configure(padx=3, pady=3)
-        self.resizable(False, False)
 
         # Configure the grid
         self.columnconfigure((0, 1, 2, 3), weight=1)
@@ -57,8 +61,8 @@ class CalculatorApp(tk.Tk):
                                takefocus=False)
         bs_button.grid(column=2, row=1, sticky="nsew")
         div_button = ttk.Button(self, text="/", padding=(0, 10, 0, 10),
-                                command=self.divide, name="divide",
-                                takefocus=False)
+                                command=lambda: self.push_op("/"),
+                                name="divide", takefocus=False)
         div_button.grid(column=3, row=1, sticky="nsew")
 
         # Row 2 buttons
@@ -75,8 +79,8 @@ class CalculatorApp(tk.Tk):
                                  takefocus=False)
         nine_button.grid(column=2, row=2, sticky="nsew")
         mul_button = ttk.Button(self, text="X", padding=(0, 10, 0, 10),
-                                command=self.multiply, name="multiply",
-                                takefocus=False)
+                                command=lambda: self.push_op("*"),
+                                name="multiply", takefocus=False)
         mul_button.grid(column=3, row=2, sticky="nsew")
 
         # Row 3 buttons
@@ -93,8 +97,8 @@ class CalculatorApp(tk.Tk):
                                 takefocus=False)
         six_button.grid(column=2, row=3, sticky="nsew")
         sub_button = ttk.Button(self, text="-", padding=(0, 10, 0, 10),
-                                command=self.subtract, name="subtract",
-                                takefocus=False)
+                                command=lambda: self.push_op("-"),
+                                name="subtract", takefocus=False)
         sub_button.grid(column=3, row=3, sticky="nsew")
 
         # Row 4 buttons
@@ -111,7 +115,8 @@ class CalculatorApp(tk.Tk):
                                   takefocus=False)
         three_button.grid(column=2, row=4, sticky="nsew")
         add_button = ttk.Button(self, text="+", padding=(0, 10, 0, 10),
-                                command=self.add, name="add", takefocus=False)
+                                command=lambda: self.push_op("+"), name="add",
+                                takefocus=False)
         add_button.grid(column=3, row=4, sticky="nsew")
 
         # Row 5 buttons
@@ -127,7 +132,7 @@ class CalculatorApp(tk.Tk):
                                   takefocus=False)
         point_button.grid(column=2, row=5, sticky="nsew")
         equal_button = ttk.Button(self, text="=", padding=(0, 10, 0, 10),
-                                  command=self.equals, name="equals",
+                                  command=self.solve, name="equals",
                                   takefocus=False)
         equal_button.grid(column=3, row=5, sticky="nsew")
 
@@ -147,101 +152,108 @@ class CalculatorApp(tk.Tk):
                 self.dec_point()
             case "/":
                 self._simulate_button_press(self.children["divide"])
-                self.divide()
+                self.push_op("/")
             case "*":
                 self._simulate_button_press(self.children["multiply"])
-                self.multiply()
+                self.push_op("*")
             case "-":
                 self._simulate_button_press(self.children["subtract"])
-                self.subtract()
+                self.push_op("-")
             case "+":
                 self._simulate_button_press(self.children["add"])
-                self.add()
+                self.push_op("+")
             case "\x08":
                 self._simulate_button_press(self.children["backspace"])
                 self.backspace()
             case "=":
                 self._simulate_button_press(self.children["equals"])
-                self.equals()
+                self.solve()
             case "\r":
                 self._simulate_button_press(self.children["equals"])
-                self.equals()
+                self.solve()
 
+    
+    def push_op(self, op: str) -> None:
+        if self.last_was_op:
+            self.stack.push(op)
+        else:
+            if self.stack.count() == 3:
+                self.solve()
+            value = self.result_text.get()
+            if value.startswith("-"):
+                self.stack.push(-1 * float(value))
+            else:
+                self.stack.push(float(value))
+            self.stack.push(op)
+            self.last_was_op = True
+        
 
     def clear_entry(self) -> None:
-        self.result_text.set("0")
+        if not self.errored:
+            self.result_text.set("")
 
     
     def clear(self) -> None:
-        self.left_val.update(0)
+        self.stack.reset()
+        self.errored = False
+        self.last_was_op = False
         self.clear_entry()
 
 
     def backspace(self) -> None:
-        self.result_text.set(self.result_text.get()[:-1])
-        if self.result_text.get() == "":
-            self.clear_entry()
+        if not self.errored:
+            self.result_text.set(self.result_text.get()[:-1])
 
 
-    def divide(self) -> None:
-        self.left_val /= Operand(self.result_text.get())
-        self.clear_entry()
-
-
-    def multiply(self) -> None:
-        self.left_val *= Operand(self.result_text.get())
-        self.clear_entry()
-
-
-    def subtract(self) -> None:
-        self.left_val -= Operand(self.result_text.get())
-        self.clear_entry()
-
-
-    def add(self) -> None:
-        self.left_val += Operand(self.result_text.get())
-        self.clear_entry()
-
-
-    def equals(self) -> None:
+    def solve(self) -> None:
         try:
-            match (self.left_val.last_op):
-                case "+":
-                    self.add()
-                case "-":
-                    self.subtract()
-                case "*":
-                    self.multiply()
-                case "/":
-                    self.divide()
-            self.left_val.last_op = None
-            self.result_text.set(self.left_val)
+            if not self.errored:
+                if self.stack.count() == 2:
+                    self.stack.push(float(self.result_text.get()))
+                result = str(self.stack.solve())
+                if len(result) > self.BUFFER_MAX:
+                    raise OverflowError()
+                self.result_text.set(result)
+                self.last_was_op = True
         except ZeroDivisionError:
             self.result_text.set("Divide by zero")
+            self.errored = True
+        except OverflowError:
+            self.result_text.set("Overflow")
+            self.errored = True
+        except:
+            self.result_text.set("Error")
+            self.errored = True
 
 
     def dec_point(self) -> None:
-        cur_val = self.result_text.get()
-        if (len(cur_val) < self.BUFFER_MAX
-            or (cur_val.startswith("-") and len(cur_val) == self.BUFFER_MAX)):
-            self.result_text.set(cur_val + ".")
+        if not self.errored:
+            cur_val = self.result_text.get()
+            if cur_val == "" or self.last_was_op:
+                self.result_text.set("0.")
+            elif "." not in cur_val:
+                if len(cur_val) < self.BUFFER_MAX - 1:
+                    self.result_text.set(cur_val + ".")
+            self.last_was_op = False
 
 
     def sign(self) -> None:
-        cur_val = self.result_text.get()
-        if cur_val.startswith("-"):
-            cur_val = cur_val.removeprefix("-")
-            self.result_text.set(cur_val)
-        elif cur_val != "0":
-            cur_val = "-" + cur_val
-            self.result_text.set(cur_val)
+        if not self.errored:
+            cur_val = self.result_text.get()
+            if cur_val.startswith("-"):
+                cur_val = cur_val.removeprefix("-")
+                self.result_text.set(cur_val)
+            elif cur_val != "" and not math.isclose(0.0, float(cur_val)):
+                cur_val = "-" + cur_val
+                self.result_text.set(cur_val)
 
 
     def num_press(self, value: int) -> None:
-        cur_val = self.result_text.get()
-        if (len(cur_val) < self.BUFFER_MAX
-            or (cur_val.startswith("-") and len(cur_val) == self.BUFFER_MAX)):
-            if cur_val != "0":
-                self.result_text.set(cur_val + str(value))
-            else:
+        if not self.errored:
+            cur_val = self.result_text.get()
+            if self.last_was_op:
                 self.result_text.set(str(value))
+            elif (len(cur_val) < self.BUFFER_MAX
+                  or (cur_val.startswith("-") and len(cur_val) == self.BUFFER_MAX)):
+                self.result_text.set(cur_val + str(value))
+            self.last_was_op = False
