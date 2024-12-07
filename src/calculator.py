@@ -45,7 +45,7 @@ class CalculatorApp(tk.Tk):
                                  name="result")
         result_label.grid(column=0, columnspan=4, row=0, sticky="nsew")
 
-        # Buttons
+        # Row 1 buttons
         ce_button = ttk.Button(self, text="CE", padding=(0, 10, 0, 10), 
                                command=self.clear_entry, takefocus=False)
         ce_button.grid(column=0, row=1, sticky="nsew")
@@ -60,6 +60,8 @@ class CalculatorApp(tk.Tk):
                                 command=self.divide, name="divide",
                                 takefocus=False)
         div_button.grid(column=3, row=1, sticky="nsew")
+
+        # Row 2 buttons
         seven_button = ttk.Button(self, text="7", padding=(0, 10, 0, 10),
                                   command=lambda: self.num_press(7), name="7",
                                   takefocus=False)
@@ -76,6 +78,8 @@ class CalculatorApp(tk.Tk):
                                 command=self.multiply, name="multiply",
                                 takefocus=False)
         mul_button.grid(column=3, row=2, sticky="nsew")
+
+        # Row 3 buttons
         four_button = ttk.Button(self, text="4", padding=(0, 10, 0, 10),
                                  command=lambda: self.num_press(4), name="4",
                                  takefocus=False)
@@ -92,6 +96,8 @@ class CalculatorApp(tk.Tk):
                                 command=self.subtract, name="subtract",
                                 takefocus=False)
         sub_button.grid(column=3, row=3, sticky="nsew")
+
+        # Row 4 buttons
         one_button = ttk.Button(self, text="1", padding=(0, 10, 0, 10),
                                 command=lambda: self.num_press(1), name="1",
                                 takefocus=False)
@@ -107,6 +113,8 @@ class CalculatorApp(tk.Tk):
         add_button = ttk.Button(self, text="+", padding=(0, 10, 0, 10),
                                 command=self.add, name="add", takefocus=False)
         add_button.grid(column=3, row=4, sticky="nsew")
+
+        # Row 5 buttons
         sign_button = ttk.Button(self, text="+/-", padding=(0, 10, 0, 10),
                                  command=self.sign, takefocus=False)
         sign_button.grid(column=0, row=5, sticky="nsew")
@@ -155,7 +163,7 @@ class CalculatorApp(tk.Tk):
             case "=":
                 self._simulate_button_press(self.children["equals"])
                 self.equals()
-            case _ if e.keysym == "Return":
+            case "\r":
                 self._simulate_button_press(self.children["equals"])
                 self.equals()
 
