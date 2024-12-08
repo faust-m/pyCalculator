@@ -202,7 +202,10 @@ class CalculatorApp(tk.Tk):
             if len(text) == 2 and text.startswith("-"):
                 self.result_text.set("")
             else:
-                self.result_text.set(text[:-1])
+                text = text[:-1]
+                if len(text) > 0 and text[-1] == ".":
+                    text = text[:-1]
+                self.result_text.set(text)
 
 
     def solve(self) -> None:
