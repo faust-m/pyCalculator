@@ -200,7 +200,7 @@ class CalculatorApp(tk.Tk):
         if not self.errored:
             text = self.result_text.get()
             if len(text) == 2 and text.startswith("-"):
-                self.result_text.set(str(0))
+                self.result_text.set("")
             else:
                 self.result_text.set(text[:-1])
 
