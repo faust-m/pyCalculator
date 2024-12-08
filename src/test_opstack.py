@@ -75,13 +75,11 @@ class TestOpstack(unittest.TestCase):
         stack.push("-")
         stack.push(3.1)
         stack.reset()
-        self.assertEqual(stack.count(), 1)
+        self.assertEqual(stack.count(), 0)
 
-    def test_opstack_reset_value(self):
+    def test_opstack_peek_empty(self):
         stack = Opstack()
-        stack.push(1.2)
-        stack.reset()
-        self.assertEqual(stack._items[0], 0)
+        self.assertEqual(stack.peek(), None)
 
     def test_opstack_peek_num(self):
         stack = Opstack()

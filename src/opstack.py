@@ -24,7 +24,6 @@ class Opstack(Stack):
     def push(self, item: float | str) -> None:
         if type(item) == str and type(self.peek()) == str:
             self.pop()
-            self.pop()
         super().push(item)
 
     def solve(self) -> float:
@@ -53,7 +52,7 @@ class Opstack(Stack):
     
     def reset(self) -> None:
         self._items.clear()
-        self.push(0)
 
-    def peek(self) -> float | str:
-        return self._items[-1]
+    def peek(self) -> float | str | None:
+        if self.count() > 0:
+            return self._items[-1]

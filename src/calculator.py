@@ -176,15 +176,12 @@ class CalculatorApp(tk.Tk):
         if self.last_was_op:
             self.stack.push(op)
         else:
-            if self.stack.count() == 3:
-                self.solve()
-            value = self.result_text.get()
-            if value.startswith("-"):
-                self.stack.push(-1 * float(value))
-            else:
-                self.stack.push(float(value))
-            self.stack.push(op)
-            self.last_was_op = True
+            if self.result_text.get() != "":
+                self.stack.push(float(self.result_text.get()))
+                if self.stack.count() == 3:
+                    self.solve()
+                self.stack.push(op)
+                self.last_was_op = True
         
 
     def clear_entry(self) -> None:
@@ -211,7 +208,7 @@ class CalculatorApp(tk.Tk):
     def solve(self) -> None:
         try:
             if not self.errored:
-                if self.stack.count() == 2:
+                if self.stack.count() < 3 and not self.last_was_op:
                     self.stack.push(float(self.result_text.get()))
                 result = str(self.stack.solve())
                 if len(result) > self.BUFFER_MAX:
@@ -244,11 +241,9 @@ class CalculatorApp(tk.Tk):
         if not self.errored:
             cur_val = self.result_text.get()
             if cur_val.startswith("-"):
-                cur_val = cur_val.removeprefix("-")
-                self.result_text.set(cur_val)
+                self.result_text.set(cur_val.removeprefix("-"))
             elif cur_val != "" and not math.isclose(0.0, float(cur_val)):
-                cur_val = "-" + cur_val
-                self.result_text.set(cur_val)
+                self.result_text.set("-" + cur_val)
 
 
     def num_press(self, value: int) -> None:
