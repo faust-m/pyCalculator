@@ -201,7 +201,11 @@ class CalculatorApp(tk.Tk):
 
     def backspace(self) -> None:
         if not self.errored:
-            self.result_text.set(self.result_text.get()[:-1])
+            text = self.result_text.get()
+            if len(text) == 2 and text.startswith("-"):
+                self.result_text.set(str(0))
+            else:
+                self.result_text.set(text[:-1])
 
 
     def solve(self) -> None:
