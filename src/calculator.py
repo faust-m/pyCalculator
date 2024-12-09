@@ -13,7 +13,7 @@ class CalculatorApp(tk.Tk):
         self.result_text.trace_add("write", self._result_updated)
         self.queue = OpQueue()
         self.errored = False
-        self.needs_clearing = False
+        self.needs_new_entry = False
 
         # Set window attributes
         self.geometry("300x400")
@@ -181,15 +181,17 @@ class CalculatorApp(tk.Tk):
     def calc(self, op: str) -> None:
         try:
             if not self.errored:
-                self.queue.enqueue(float(self.result_text.get()))
+                if not self.needs_new_entry:
+                    self.queue.enqueue(float(self.result_text.get()))
                 if op == "=":
                     result = str(self._format_num(self.queue.dequeue()))
                     if len(result) > self.BUFFER_MAX:
                         result = f"{float(result):.2e}"
                     self.result_text.set(result)
+                    self.needs_new_entry = False
                 else:
                     self.queue.enqueue(op)
-                self.needs_clearing = True
+                    self.needs_new_entry = True
         except ZeroDivisionError:
             self.result_text.set("Divide by zero")
             self.errored = True
@@ -228,9 +230,9 @@ class CalculatorApp(tk.Tk):
     def dec_point(self) -> None:
         if not self.errored:
             text = self.result_text.get()
-            if text == "" or self.needs_clearing:
+            if text == "" or self.needs_new_entry:
                 self.result_text.set("0.")
-                self.needs_clearing = False
+                self.needs_new_entry = False
             elif "." not in text:
                 if len(text) < self.BUFFER_MAX - 1:
                     self.result_text.set(text + ".")
@@ -248,9 +250,9 @@ class CalculatorApp(tk.Tk):
     def num_press(self, value: str) -> None:
         if not self.errored:
             text = self.result_text.get()
-            if self.needs_clearing:
+            if self.needs_new_entry:
                 self.result_text.set(value)
-                self.needs_clearing = False
+                self.needs_new_entry = False
             elif len(text) < self.BUFFER_MAX:
                 self.result_text.set(text + value)
             elif text.startswith("-") and len(text) == self.BUFFER_MAX:

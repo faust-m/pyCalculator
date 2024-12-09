@@ -23,6 +23,14 @@ class TestOpQueue(unittest.TestCase):
         q.enqueue("-")
         self.assertTrue("+" not in q._items and "-" in q._items)
 
+    def test_enqueue_ops_2(self):
+        q = OpQueue()
+        q.enqueue(2)
+        q.enqueue("+")
+        q.enqueue("+")
+        q.enqueue(3)
+        self.assertEqual(q._items[0], 5)
+
     def test_enqueue_consec_nums(self):
         q = OpQueue()
         q.enqueue(2)
